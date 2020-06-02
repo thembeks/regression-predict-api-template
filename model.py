@@ -82,15 +82,32 @@ def _preprocess_data(data):
     predict_vector.rename(columns={'RiderId No':'Rider Id'}, inplace=True)
 
     ## convert time objects to datetime objects
-    predict_vector['Placement - Time'] = pd.to_datetime(predict_vector['Placement - Time'])
-    predict_vector['Confirmation - Time'] = pd.to_datetime(predict_vector['Confirmation - Time'])
-    predict_vector['Arrival at Pickup - Time'] = pd.to_datetime(predict_vector['Arrival at Pickup - Time'])
-    predict_vector['Pickup - Time'] = pd.to_datetime(predict_vector['Pickup - Time'])
+    def time_converter(predict_vector):
+        for x in predict_vector.columns:
+            if x.endswith("Time"):
+                predict_vector[x] = pd.to_datetime(predict_vector[x], format='%I:%M:%S %p').dt.strftime("%H:%M:%S")
+        return predict_vector
 
-### change time variables to difference in time in seconds to keep time stationary and appropriate for our model
-    predict_vector['Time Placement to Confirmation'] = (predict_vector['Confirmation - Time'] - predict_vector['Placement - Time']).dt.seconds
-    predict_vector['Time Confirmation to PickupArrival'] = (predict_vector['Arrival at Pickup - Time'] - predict_vector['Confirmation - Time']).dt.seconds
-    predict_vector['Time Arrival to Pickup'] = (predict_vector['Pickup - Time'] - predict_vector['Arrival at Pickup - Time']).dt.seconds
+    predict_vector = time_converter(predict_vector)
+    predict_vector[['Placement - Time', 'Confirmation - Time' , 'Arrival at Pickup - Time', 'Pickup - Time']][3:6]
+
+
+    predict_vector['Placement - Time_Hour'] = pd.to_datetime(predict_vector['Placement - Time']).dt.hour
+    predict_vector['Placement - Time_Minute'] = pd.to_datetime(predict_vector['Placement - Time']).dt.minute
+    predict_vector['Placement - Time_Seconds'] = pd.to_datetime(predict_vector['Placement - Time']).dt.second
+
+    predict_vector['Confirmation - Time_Hour'] = pd.to_datetime(predict_vector['Confirmation - Time']).dt.hour
+    predict_vector['Confirmation - Time_Minute'] = pd.to_datetime(predict_vector['Confirmation - Time']).dt.minute
+    predict_vector['Confirmation - Time_Seconds'] = pd.to_datetime(predict_vector['Confirmation - Time']).dt.second
+
+    predict_vector['Arrival at Pickup - Time_Hour'] = pd.to_datetime(predict_vector['Arrival at Pickup - Time']).dt.hour
+    predict_vector['Arrival at Pickup - Time_Minute'] = pd.to_datetime(predict_vector['Arrival at Pickup - Time']).dt.minute
+    predict_vector['Arrival at Pickup - Time_Seconds'] = pd.to_datetime(predict_vector['Arrival at Pickup - Time']).dt.second
+
+    predict_vector['Pickup - Time_Hour'] = pd.to_datetime(predict_vector['Pickup - Time']).dt.hour
+    predict_vector['Pickup - Time_Minute'] = pd.to_datetime(predict_vector['Pickup - Time']).dt.minute
+    predict_vector['Pickup - Time_Seconds'] = pd.to_datetime(predict_vector['Pickup - Time']).dt.second
+
 
     predict_vector.drop(['Pickup - Time','Arrival at Pickup - Time','Confirmation - Time','Placement - Time','Rider Id','User Id'], axis=1, inplace=True)
 

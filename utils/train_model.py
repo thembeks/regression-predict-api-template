@@ -33,21 +33,31 @@ copy.rename(columns={'UserId No':'User Id'}, inplace=True)
 copy.rename(columns={'RiderId No':'Rider Id'}, inplace=True)
 
 ## convert time objects to datetime objects
-copy['Placement - Time'] = pd.to_datetime(copy['Placement - Time'])
-copy['Confirmation - Time'] = pd.to_datetime(copy['Confirmation - Time'])
-copy['Arrival at Pickup - Time'] = pd.to_datetime(copy['Arrival at Pickup - Time'])
-copy['Pickup - Time'] = pd.to_datetime(copy['Pickup - Time'])
+def time_converter(copy):
+    for x in copy.columns:
+        if x.endswith("Time"):
+            copy[x] = pd.to_datetime(copy[x], format='%I:%M:%S %p').dt.strftime("%H:%M:%S")
+    return copy
 
-### change time variables to difference in time in seconds to keep time stationary and appropriate for our model
-copy['Time Placement to Confirmation'] = (copy['Confirmation - Time'] - copy['Placement - Time']).dt.seconds
-copy['Time Confirmation to PickupArrival'] = (copy['Arrival at Pickup - Time'] - copy['Confirmation - Time']).dt.seconds
-copy['Time Arrival to Pickup'] = (copy['Pickup - Time'] - copy['Arrival at Pickup - Time']).dt.seconds
-
-
-### drop the old columns. Note we will keep one for analysis purposes 'Placement_Time'
-#.drop(['Confirmation - Time', 'Arrival at Pickup - Time', "Pickup - Time"], axis= 1, inplace=True)
+copy = time_converter(copy)
+copy[['Placement - Time', 'Confirmation - Time' , 'Arrival at Pickup - Time', 'Pickup - Time']][3:6]
 
 
+copy['Placement - Time_Hour'] = pd.to_datetime(copy['Placement - Time']).dt.hour
+copy['Placement - Time_Minute'] = pd.to_datetime(copy['Placement - Time']).dt.minute
+copy['Placement - Time_Seconds'] = pd.to_datetime(copy['Placement - Time']).dt.second
+
+copy['Confirmation - Time_Hour'] = pd.to_datetime(copy['Confirmation - Time']).dt.hour
+copy['Confirmation - Time_Minute'] = pd.to_datetime(copy['Confirmation - Time']).dt.minute
+copy['Confirmation - Time_Seconds'] = pd.to_datetime(copy['Confirmation - Time']).dt.second
+
+copy['Arrival at Pickup - Time_Hour'] = pd.to_datetime(copy['Arrival at Pickup - Time']).dt.hour
+copy['Arrival at Pickup - Time_Minute'] = pd.to_datetime(copy['Arrival at Pickup - Time']).dt.minute
+copy['Arrival at Pickup - Time_Seconds'] = pd.to_datetime(copy['Arrival at Pickup - Time']).dt.second
+
+copy['Pickup - Time_Hour'] = pd.to_datetime(copy['Pickup - Time']).dt.hour
+copy['Pickup - Time_Minute'] = pd.to_datetime(copy['Pickup - Time']).dt.minute
+copy['Pickup - Time_Seconds'] = pd.to_datetime(copy['Pickup - Time']).dt.second
 
 #Drop Columns
 copy.drop(['Pickup - Time','Arrival at Pickup - Time','Confirmation - Time','Placement - Time', 'Rider Id','User Id'], axis=1, inplace=True)
@@ -86,6 +96,6 @@ lm.fit(X_train, y_train)
 
 import pickle
 
-model_save_path = "newer_model.pkl"
+model_save_path = "newest_model.pkl"
 with open(model_save_path,'wb') as file:
     pickle.dump(lm,file)
