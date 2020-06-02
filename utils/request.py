@@ -26,8 +26,8 @@ import numpy as np
 # We prepare a DataFrame with the public test set + riders data
 # from the Zindi challenge.
 test = pd.read_csv('data/test_data.csv')
-riders = pd.read_csv('data/riders.csv')
-test = test.merge(riders, how='left', on='Rider Id')
+#riders = pd.read_csv('data/riders.csv')
+#test = test.merge(riders, how='left', on='Rider Id')
 
 # Convert our DataFrame to a JSON string.
 # This step is necessary in order to transmit our data via HTTP/S
@@ -38,7 +38,7 @@ feature_vector_json = test.iloc[1].to_json()
 # replace the URL below with its public IP:
 
 # url = 'http://{public-ip-address-of-remote-machine}:5000/api_v0.1'
-url = 'http://54.77.254.174:5000/api_v0.1'
+url = 'http://3.250.16.34:5000/api_v0.1'
 
 # Perform the POST request.
 print(f"Sending POST request to web server API at: {url}")
